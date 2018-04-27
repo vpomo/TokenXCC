@@ -27,7 +27,6 @@ contract('XCCCrowdsale', (accounts) => {
         assert.equal(totalSupply, balanceOwner);
     });
 
-
     it('verification of receiving Ether', async ()  => {
         var tokenAllocatedBefore = await contract.tokenAllocated.call();
         var balanceAccountTwoBefore = await contract.balanceOf(accounts[2]);
@@ -114,8 +113,6 @@ contract('XCCCrowdsale', (accounts) => {
         var balanceOwnerAfter = await contract.balanceOf(owner);
         assert.equal(true, balanceOwnerBefore<balanceOwnerAfter);
     });
-
-
 });
 
 
