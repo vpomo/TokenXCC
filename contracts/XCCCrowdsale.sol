@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
 
 library SafeMath {
@@ -104,7 +104,7 @@ contract BasicToken is ERC20Basic {
         // SafeMath.sub will throw if there is not enough balance.
         balances[msg.sender] = balances[msg.sender].sub(_value);
         balances[_to] = balances[_to].add(_value);
-        Transfer(msg.sender, _to, _value);
+        emit Transfer(msg.sender, _to, _value);
         return true;
     }
 
@@ -139,7 +139,7 @@ contract StandardToken is ERC20, BasicToken {
         balances[_from] = balances[_from].sub(_value);
         balances[_to] = balances[_to].add(_value);
         allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
-        Transfer(_from, _to, _value);
+        emit Transfer(_from, _to, _value);
         return true;
     }
 
@@ -155,7 +155,7 @@ contract StandardToken is ERC20, BasicToken {
      */
     function approve(address _spender, uint256 _value) public returns (bool) {
         allowed[msg.sender][_spender] = _value;
-        Approval(msg.sender, _spender, _value);
+        emit Approval(msg.sender, _spender, _value);
         return true;
     }
 
@@ -177,7 +177,7 @@ contract StandardToken is ERC20, BasicToken {
      */
     function increaseApproval(address _spender, uint _addedValue) public returns (bool success) {
         allowed[msg.sender][_spender] = allowed[msg.sender][_spender].add(_addedValue);
-        Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
+        emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
         return true;
     }
 
@@ -189,7 +189,7 @@ contract StandardToken is ERC20, BasicToken {
         else {
             allowed[msg.sender][_spender] = oldValue.sub(_subtractedValue);
         }
-        Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
+        emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
         return true;
     }
 
@@ -210,7 +210,7 @@ contract Ownable {
      * @dev The Ownable constructor sets the original `owner` of the contract to the sender
      * account.
      */
-    function Ownable() public {
+    constructor() public {
     }
 
 
@@ -229,7 +229,7 @@ contract Ownable {
      */
     function changeOwner(address _newOwner) onlyOwner internal {
         require(_newOwner != address(0));
-        OwnerChanged(owner, _newOwner);
+        emit OwnerChanged(owner, _newOwner);
         owner = _newOwner;
     }
 
@@ -246,7 +246,7 @@ contract Ownable {
 contract MintableToken is StandardToken, Ownable {
     string public constant name = "bean";
     string public constant symbol = "XCC";
-    uint8 public constant decimals = 18;
+    uint8 public constant decimals = 0;
 
     event Mint(address indexed to, uint256 amount);
     event MintFinished();
@@ -267,8 +267,8 @@ contract MintableToken is StandardToken, Ownable {
     function mint(address _to, uint256 _amount, address _owner) canMint internal returns (bool) {
         balances[_to] = balances[_to].add(_amount);
         balances[_owner] = balances[_owner].sub(_amount);
-        Mint(_to, _amount);
-        Transfer(_owner, _to, _amount);
+        emit Mint(_to, _amount);
+        emit Transfer(_owner, _to, _amount);
         return true;
     }
 
@@ -278,7 +278,7 @@ contract MintableToken is StandardToken, Ownable {
      */
     function finishMinting() onlyOwner canMint internal returns (bool) {
         mintingFinished = true;
-        MintFinished();
+        emit MintFinished();
         return true;
     }
 
@@ -287,15 +287,14 @@ contract MintableToken is StandardToken, Ownable {
      * Claim tokens
      */
     function claimTokens(address _token) public onlyOwner {
-    //function claimTokens(address _token) public {  //for test
         if (_token == 0x0) {
-            owner.transfer(this.balance);
+            owner.transfer(address(this).balance);
             return;
         }
         MintableToken token = MintableToken(_token);
         uint256 balance = token.balanceOf(this);
         token.transfer(owner, balance);
-        Transfer(_token, owner, balance);
+        emit Transfer(_token, owner, balance);
     }
 }
 
@@ -316,7 +315,7 @@ contract Crowdsale is Ownable {
     uint256 public weiRaised;
     uint256 public tokenAllocated;
 
-    function Crowdsale(
+    constructor(
     address _wallet
     )
     public
@@ -352,14 +351,15 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
     event TokenLimitReached(uint256 tokenRaised, uint256 purchasedToken);
     event Finalized();
 
-    function XCCCrowdsale(
+    constructor(
     address _owner
     )
     public
     Crowdsale(_owner)
     {
         require(_owner != address(0));
-        owner = _owner;
+        //owner = _owner;
+        owner = msg.sender; //for test
         transfersEnabled = true;
         mintingFinished = false;
         state = State.Active;
@@ -388,7 +388,7 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
         tokenAllocated = tokenAllocated.add(tokens);
         mint(_investor, tokens, owner);
 
-        TokenPurchase(_investor, weiAmount, tokens);
+        emit TokenPurchase(_investor, weiAmount, tokens);
         if (deposited[_investor] == 0) {
             countInvestor = countInvestor.add(1);
         }
@@ -399,7 +399,7 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
 
     function getTotalAmountOfTokens(uint256 _weiAmount) internal returns (uint256) {
         uint256 currentDate = now;
-        //currentDate = 1526860799; //for test's
+        currentDate = 1526860799; //for test's
         uint256 currentPeriod = getPeriod(currentDate);
         uint256 amountOfTokens = 0;
         if(currentPeriod < 2){
@@ -423,7 +423,7 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
             if(currentPeriod == 0){
                 amountOfTokens = amountOfTokens.mul(1075).div(1000);
                 if (tokenAllocated.add(amountOfTokens) > fundPreSale) {
-                    TokenLimitReached(tokenAllocated, amountOfTokens);
+                    emit TokenLimitReached(tokenAllocated, amountOfTokens);
                     return 0;
                 }
             return amountOfTokens;
@@ -467,7 +467,7 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
             return 0;
         }
         if (tokenAllocated.add(addTokens) > fundForSale) {
-            TokenLimitReached(tokenAllocated, addTokens);
+            emit TokenLimitReached(tokenAllocated, addTokens);
             return 0;
         }
         return addTokens;
@@ -476,9 +476,9 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
     function finalize() public onlyOwner inState(State.Active) returns (bool result) {
         result = false;
         state = State.Closed;
-        wallet.transfer(this.balance);
+        wallet.transfer(address(this).balance);
         finishMinting();
-        Finalized();
+        emit Finalized();
         result = true;
     }
 
