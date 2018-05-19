@@ -333,9 +333,11 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
     State public state;
 
     // https://www.coingecko.com/en/coins/ethereum
-    //$0.002 = 1 token => $ 1,000 = 1.6730521490354853 ETH =>
-    // 500,000 token = 1.6730521490354853 ETH => 1 ETH = 500,000/1.6730521490354853 = 298,855
-    uint256 public rate  = 298855;
+    // Rate for May 19, 2018
+    //$0.002 = 1 token => $ 1,000 = 1,4588743325649929 ETH =>
+    // 500,000 token = 1,4588743325649929 ETH => 1 ETH = 500,000/1,4588743325649929 = 298,855
+
+    uint256 public rate  = 342730;
     //uint256 public rate  = 300000; //for test's
 
     mapping (address => uint256) public deposited;
@@ -358,8 +360,8 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
     Crowdsale(_owner)
     {
         require(_owner != address(0));
-        //owner = _owner;
-        owner = msg.sender; //for test
+        owner = _owner;
+        //owner = msg.sender; //for test
         transfersEnabled = true;
         mintingFinished = false;
         state = State.Active;
@@ -399,7 +401,7 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
 
     function getTotalAmountOfTokens(uint256 _weiAmount) internal returns (uint256) {
         uint256 currentDate = now;
-        currentDate = 1526860799; //for test's
+        //currentDate = 1526860899; //for test's
         uint256 currentPeriod = getPeriod(currentDate);
         uint256 amountOfTokens = 0;
         if(currentPeriod < 2){
@@ -421,7 +423,7 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
             }
 
             if(currentPeriod == 0){
-                amountOfTokens = amountOfTokens.mul(1075).div(1000);
+                amountOfTokens = amountOfTokens.mul(1074).div(1000);
                 if (tokenAllocated.add(amountOfTokens) > fundPreSale) {
                     emit TokenLimitReached(tokenAllocated, amountOfTokens);
                     return 0;
@@ -433,10 +435,10 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
     }
 
     function getPeriod(uint256 _currentDate) public pure returns (uint) {
-        //1525651200 - May, 07, 2018 00:00:00 && 1528156799 - Jun, 04, 2018 23:59:59
+        //1526860800 - May, 21, 2018 00:00:00 && 1529539199 - Jun, 20, 2018 23:59:59
         //1540080000 - Oct, 21, 2018 00:00:00 && 1542758399 - Nov, 20, 2018 23:59:59
 
-        if( 1525651200 <= _currentDate && _currentDate <= 1528156799){
+        if( 1526860800 <= _currentDate && _currentDate <= 1529539199){
             return 0;
         }
         if( 1540080000 <= _currentDate && _currentDate <= 1542758399){

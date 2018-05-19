@@ -6,7 +6,7 @@ contract('XCCCrowdsale', (accounts) => {
     //var owner = "0x03C5477957ce72Bae0A0283f1bCF63d8cadd7ef0";
     var owner = accounts[0];
 
-    var rate = Number(298855);
+    var rate = Number(327033);
     var buyWei = Number(1);
     var buyWeiNew = Number(1);
     var totalSupply = 5e+12;
@@ -35,7 +35,7 @@ contract('XCCCrowdsale', (accounts) => {
 
         var numberToken = await contract.validPurchaseTokens.call(Number(buyWei));
         //console.log(" numberTokens = " + JSON.stringify(numberToken));
-        console.log("numberTokens = " + numberToken);
+        //console.log("numberTokens = " + numberToken);
 
         await contract.buyTokens(accounts[2],{from:accounts[2], value:buyWei});
         var tokenAllocatedAfter = await contract.tokenAllocated.call();
@@ -45,12 +45,11 @@ contract('XCCCrowdsale', (accounts) => {
         assert.equal(Number(rate*buyWei), tokenAllocatedAfter);
 
         var balanceAccountTwoAfter = await contract.balanceOf(accounts[2]);
-        console.log("balanceAccountTwoAfter = " + balanceAccountTwoAfter);
+        //console.log("balanceAccountTwoAfter = " + balanceAccountTwoAfter);
         assert.isTrue(balanceAccountTwoBefore < balanceAccountTwoAfter);
         assert.equal(0, balanceAccountTwoBefore);
         assert.equal(Number(rate*buyWei), balanceAccountTwoAfter);
 
-/*
         var weiRaisedAfter = await contract.weiRaised.call();
         //console.log("weiRaisedAfter = " + weiRaisedAfter);
         assert.isTrue(weiRaisedBefore < weiRaisedAfter);
@@ -72,7 +71,6 @@ contract('XCCCrowdsale', (accounts) => {
         var balanceOwnerAfter = await contract.balanceOf(owner);
         //console.log("balanceOwnerAfter = " + Number(balanceOwnerAfter));
         //assert.equal(totalSupply - balanceAccountThreeAfter - balanceAccountTwoAfter, balanceOwnerAfter);
-*/
     });
 
     it('verification define period', async ()  => {
@@ -80,7 +78,7 @@ contract('XCCCrowdsale', (accounts) => {
         period = await contract.getPeriod(currentDate);
         assert.equal(10, period);
 
-        currentDate = 1526860799; // May, 20
+        currentDate = 1526860899; // May, 21
         period = await contract.getPeriod(currentDate);
         assert.equal(0, period);
 
@@ -98,25 +96,22 @@ contract('XCCCrowdsale', (accounts) => {
     });
 
     it('verification claim tokens', async ()  => {
-/*
-        var balanceAccountOneBefore = await contract.balanceOf(accounts[0]);
+        var balanceAccountOneBefore = await contract.balanceOf(accounts[1]);
         assert.equal(0, balanceAccountOneBefore);
-        await contract.buyTokens(accounts[0],{from:accounts[0], value:buyWei});
-        var balanceAccountOneAfter = await contract.balanceOf(accounts[0]);
-        await contract.transfer(contract.address,balanceAccountOneAfter,{from:accounts[0]});
+        await contract.buyTokens(accounts[1],{from:accounts[1], value:buyWei});
+        var balanceAccountOneAfter = await contract.balanceOf(accounts[1]);
+        await contract.transfer(contract.address,balanceAccountOneAfter,{from:accounts[1]});
         var balanceContractBefore = await contract.balanceOf(contract.address);
 
-        assert.equal(Number(buyWei*rate), balanceContractBefore);
+        assert.equal(Number(rate*buyWei), balanceContractBefore);
         //console.log("balanceContractBefore = " + balanceContractBefore);
-        var balanceAccountAfter = await contract.balanceOf(accounts[0]);
-        assert.equal(0, balanceAccountAfter);
         var balanceOwnerBefore = await contract.balanceOf(owner);
         await contract.claimTokens(contract.address,{from:accounts[0]});
         var balanceContractAfter = await contract.balanceOf(contract.address);
+        //console.log("balanceContractAfter = " + balanceContractAfter);
         assert.equal(0, balanceContractAfter);
         var balanceOwnerAfter = await contract.balanceOf(owner);
         assert.equal(true, balanceOwnerBefore<balanceOwnerAfter);
-*/
     });
 });
 
