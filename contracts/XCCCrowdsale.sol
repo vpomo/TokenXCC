@@ -345,7 +345,7 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
 
     uint256 public constant INITIAL_SUPPLY = 5 * (10 ** 12) * (10 ** uint256(decimals));
     uint256 public fundForSale = 5 * (10 ** 12) * (10 ** uint256(decimals));
-    uint256 public fundPreSale =  1 * (10 ** 12) * (10 ** uint256(decimals));
+    uint256 public fundPreSale =  1 * (10 ** 9) * (10 ** uint256(decimals));
 
     uint256 public countInvestor;
 
