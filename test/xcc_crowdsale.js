@@ -9,7 +9,7 @@ contract('XCCCrowdsale', (accounts) => {
     var rate = Number(327033);
     var buyWei = Number(1);
     var buyWeiNew = Number(1);
-    var totalSupply = 5e+12;
+    var totalSupply = 7050000000;
 
     it('should deployed contract', async ()  => {
         assert.equal(undefined, contract);
@@ -78,7 +78,7 @@ contract('XCCCrowdsale', (accounts) => {
         period = await contract.getPeriod(currentDate);
         assert.equal(10, period);
 
-        currentDate = 1526860899; // May, 21
+        currentDate = 1529539199; // Jun, 20
         period = await contract.getPeriod(currentDate);
         assert.equal(0, period);
 
