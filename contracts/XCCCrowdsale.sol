@@ -333,19 +333,21 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
     State public state;
 
     // https://www.coingecko.com/en/coins/ethereum
-    // Rate for May 19, 2018
-    //$0.002 = 1 token => $ 1,000 = 1,4588743325649929 ETH =>
-    // 500,000 token = 1,4588743325649929 ETH => 1 ETH = 500,000/1,4588743325649929 = 298,855
+    // Rate for May 26, 2018
+    //$0.002 = 1 token => $ 1,000 = 1,6816614815437654 ETH =>
+    // 500,000 token = 1,6816614815437654 ETH => 1 ETH = 500,000/1,6816614815437654 = 297,325
 
-    uint256 public rate  = 342730;
+    uint256 public rate  = 297325;
     //uint256 public rate  = 300000; //for test's
 
     mapping (address => uint256) public deposited;
     mapping(address => bool) public whitelist;
 
     uint256 public constant INITIAL_SUPPLY = 7050000000 * (10 ** uint256(decimals));
-    uint256 public fundForSale = 7050000000 * (10 ** uint256(decimals));
+    uint256 public fundForSale = 4 * 10**12 * (10 ** uint256(decimals));
     uint256 public fundPreSale =  1 * (10 ** 9) * (10 ** uint256(decimals));
+    address public addressFundFounder = 0xd8dbd7723eafCF4cCFc62AC9D8d355E0b4CFDCD3;
+    uint256 public fundFounder = 10**12 * (10 ** uint256(decimals));
 
     uint256 public countInvestor;
 
@@ -365,7 +367,7 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
         transfersEnabled = true;
         mintingFinished = false;
         state = State.Active;
-        totalSupply = INITIAL_SUPPLY;
+        totalSupply = 5 * 10**12 * (10 ** uint256(decimals));
         bool resultMintForOwner = mintForOwner(owner);
         require(resultMintForOwner);
     }
@@ -401,11 +403,11 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
 
     function getTotalAmountOfTokens(uint256 _weiAmount) internal returns (uint256) {
         uint256 currentDate = now;
-        //currentDate = 1526860899; //for test's
+        //currentDate = 1529539199; //for test's 20 Jun 2018 23:59:59 GMT
         uint256 currentPeriod = getPeriod(currentDate);
         uint256 amountOfTokens = 0;
         if(currentPeriod < 2){
-            amountOfTokens = _weiAmount.mul(rate);
+            amountOfTokens = _weiAmount.mul(rate).mul(10 ** uint256(decimals)).div(10**18);
             if (10**3*(10 ** uint256(decimals)) <= amountOfTokens && amountOfTokens < 10**5*(10 ** uint256(decimals))) {
                 amountOfTokens = amountOfTokens.mul(101).div(100);
             }
@@ -455,7 +457,8 @@ contract XCCCrowdsale is Ownable, Crowdsale, MintableToken {
     function mintForOwner(address _wallet) internal returns (bool result) {
         result = false;
         require(_wallet != address(0));
-        balances[_wallet] = balances[_wallet].add(INITIAL_SUPPLY);
+        balances[_wallet] = balances[_wallet].add(fundForSale);
+        balances[addressFundFounder] = balances[addressFundFounder].add(fundFounder);
         result = true;
     }
 
